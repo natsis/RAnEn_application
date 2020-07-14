@@ -1,3 +1,3 @@
 # RAnEn_application
 
-A minimum example for testing my implementation.
+A minimum example for testing my implementation of RAnEn.
