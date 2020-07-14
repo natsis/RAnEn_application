@@ -147,9 +147,6 @@ if (!file.exists(forecast_stor)) {
             for (time in times_vec) {
                 for (flts in flts_vec) {
 
-                    # data[Station == stat &
-                    #          Time    == time ]
-
                     gg <- data[ Station == stat &
                                     Time    == time &
                                     FLTS    == flts , ..var]
@@ -387,12 +384,7 @@ print(AnEn)
 
 anen <- AnEn$analogs
 
-
-
-##FIXME geting only one value per day not 24 per day. !!
 anen[,,1,1]
-
-
 anen[1,1,,]
 
 ast <- anen[1,,,]
