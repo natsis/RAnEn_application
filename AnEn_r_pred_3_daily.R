@@ -82,10 +82,15 @@ if (TEST) {
     data <- data[ Station %in% unique( data$Station )[1:2] ]
 }
 
+sum(is.na(data$RelHum))
+sum(is.na(data$T2))
+sum(is.na(data$Temp))
+sum(is.na(data$RH2))
+
 
 ## add flts and forecast time to data
 data[, Time := as.POSIXct(as.Date(DATE)) ]
-data[, FLTS := DATE - Time]
+data[, FLTS := as.numeric(DATE - Time)]
 
 summary(as.numeric(data$FLTS)/3600)
 diff(sort(unique(data$Time)))
@@ -142,10 +147,17 @@ if (!file.exists(forecast_stor)) {
             for (time in times_vec) {
                 for (flts in flts_vec) {
 
+                    # data[Station == stat &
+                    #          Time    == time ]
+
                     gg <- data[ Station == stat &
                                     Time    == time &
                                     FLTS    == flts , ..var]
-                    stopifnot(length(gg)==1)
+
+                    ## skip empty data
+                    if (dim(gg)[1] == 0) next
+
+                    # stopifnot(length(gg)==1)
 
                     gg <- (unlist(gg))[1]
 
@@ -153,6 +165,7 @@ if (!file.exists(forecast_stor)) {
                           which( stati_vec == stat ),
                           which( times_vec == time ),
                           which( flts_vec  == flts )  ] <- as.numeric(gg)
+                    stopifnot( !is.na(as.numeric(gg)) )
                     # cat(paste(gg, stat, time, lfts, var),"\n")
                 }
             }
@@ -240,8 +253,13 @@ if (!file.exists(observat_stor)) {
             for (time in times_vec) {
 
                 gg <- data[ Station == stat &
-                                Time    == time , ..var]
+                            DATE    == time , ..var]
                 stopifnot(length(gg)==1)
+
+
+
+                ## skip empty data
+                if (dim(gg)[1] == 0) next
 
                 gg <- (unlist(gg))[1]
 
@@ -281,8 +299,6 @@ if (!file.exists(observat_stor)) {
 config <- new(Config)
 
 
-
-
 ## do each month separately
 gather_stats <- data.table()
 for ( am in sort(unique(month(forecast$Times))) ) {
@@ -290,7 +306,6 @@ for ( am in sort(unique(month(forecast$Times))) ) {
     test.times   <- forecast$Times[  (!mday(forecast$Times) <= MDAY_break) & month(forecast$Times) == am ]
 
     config$num_analogs    <- sqrt(length(search.times))
-
 
 
     config$observation_id <- which(observations$ParameterNames == "RH2")
@@ -408,7 +423,11 @@ plot(forecast$FLTs/3600, ret.Bias$flt, type = 'b', pch = 1, cex = 0.5,
 barplot(ret.RH$rank, ylab = 'Rank Frequency')
 
 
+length(which(is.na(observations$Data)))
+length(observations$Data)
 
+length(which(is.na(forecast$Data)))
+length(forecast$Data)
 
 
 ####_ END _####
