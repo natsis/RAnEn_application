@@ -49,7 +49,6 @@ if (TEST) {
 }
 
 
-
 ## load data to reshape
 data    <- data.table(readRDS(out_rds))
 
@@ -94,7 +93,6 @@ data[, FLTS := as.numeric(DATE - Time)]
 
 summary(as.numeric(data$FLTS)/3600)
 diff(sort(unique(data$Time)))
-
 
 
 sort(unique( data[ FLTS == 0, DATE]))
@@ -154,8 +152,6 @@ if (!file.exists(forecast_stor)) {
                     ## skip empty data
                     if (dim(gg)[1] == 0) next
 
-                    # stopifnot(length(gg)==1)
-
                     gg <- (unlist(gg))[1]
 
                     fill[ which( variables == var ),
@@ -188,8 +184,6 @@ if (!file.exists(forecast_stor)) {
 }
 
 
-
-##FIXME some data are empty
 
 
 ## create observations file
@@ -239,8 +233,6 @@ if (!file.exists(observat_stor)) {
     data[, RH2:= NULL]
     names(data)[names(data) == "Temp"   ] <- "T2"
     names(data)[names(data) == "RelHum" ] <- "RH2"
-    # variables[ variables    == "RelHum" ] <- "RH2"
-    # variables[ variables    == "Temp"   ] <- "T2"
 
     ## create a sparse matrix and fill
     fill <- array(data = NA, dim = c(vars_dim, stati_dim, times_dim ))
@@ -252,8 +244,6 @@ if (!file.exists(observat_stor)) {
                 gg <- data[ Station == stat &
                             DATE    == time , ..var]
                 stopifnot(length(gg)==1)
-
-
 
                 ## skip empty data
                 if (dim(gg)[1] == 0) next
@@ -267,7 +257,6 @@ if (!file.exists(observat_stor)) {
             }
         }
     }
-    dim(fill)
 
     observations <- generateObservationsTemplate()
     coo          <- unique(data[ , .(Station, Lat_ST, Lon_ST) ])
@@ -279,7 +268,6 @@ if (!file.exists(observat_stor)) {
     observations$Xs             <- coo[ match(stati_vec, coo$Station), Lat_ST ]
     observations$Ys             <- coo[ match(stati_vec, coo$Station), Lon_ST ]
     observations$ParameterNames <- variables
-
 
     saveRDS(object = observations, file = observat_stor, compress = "xz")
 } else {
